@@ -134,5 +134,7 @@ module.exports = function(){
         outArray.push(parsed);
     }
     fs.writeFile('./epsgAsObj.json',JSON.stringify(outObj),'utf8',function(){console.log('done with obj')});
-    fs.writeFile('./epsgAsArray.json',JSON.stringify(outArray),'utf8',function(){console.log('done wiht array')}) 
+    fs.writeFile('./epsgAsObj-prettyprint.json',JSON.stringify(outObj,undefined,4),'utf8',function(){console.log('done with obj pp')});
+    fs.writeFile('./epsgAsArray.json',JSON.stringify(outArray),'utf8',function(){console.log('done with array')});
+    fs.writeFile('./epsgAsArray-prettyprint.json',JSON.stringify(outArray,undefined,4),'utf8',function(){console.log('done with array pp')}) 
 }
