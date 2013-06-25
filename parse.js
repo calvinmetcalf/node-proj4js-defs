@@ -122,9 +122,21 @@ var parseit = function(nm,defData) {
 
     return self;
   }
+  function parseText(data){
+      var out = {};
+      data.split('\n').filter(function(a){
+          return a&&a[0]!=='#';
+      }).map(function(a){
+          var rslt = a.match(/\<(.+?)\>(.+)\</);
+          return [rslt[1],rslt[2].trim()];
+      }).forEach(function(a){
+         out['EPGS:'+a[0]]=a[1];
+        });
+        return out;
+  }
 module.exports = function(){
-    var p = {defs:{}};
-    require('./epsg')(p);
+    fs.readFile('./epgs.txt','utf8',function(err,data){
+    var p = {defs:parseText(data)};
     var outArray = [];
     var outObj = {};
     var parsed;
@@ -137,4 +149,5 @@ module.exports = function(){
     fs.writeFile('./epsgAsObj-prettyprint.json',JSON.stringify(outObj,undefined,4),'utf8',function(){console.log('done with obj pp')});
     fs.writeFile('./epsgAsArray.json',JSON.stringify(outArray),'utf8',function(){console.log('done with array')});
     fs.writeFile('./epsgAsArray-prettyprint.json',JSON.stringify(outArray,undefined,4),'utf8',function(){console.log('done with array pp')}) 
+    });
 }
