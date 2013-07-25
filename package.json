@@ -1,0 +1,21 @@
+{
+  "name": "proj4js-defs-constructor",
+  "version": "1.0.0",
+  "description": "make all the defs",
+  "main": "parse.js",
+  "dependencies": {
+    "request": "~2.25.0"
+  },
+  "devDependencies": {
+    "request": "~2.25.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/calvinmetcalf/node-proj4js-defs.git"
+  },
+  "author": "",
+  "license": "MIT"
+}

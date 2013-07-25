@@ -1,4 +1,6 @@
 var fs = require('fs');
+var request = require('request');
+
 var parseit = function(nm,defData) {
     var D2R = 0.01745329251994329577;
     var primeMeridian = {
@@ -122,7 +124,7 @@ var parseit = function(nm,defData) {
 
     return self;
   }
-  function parseText(data){
+  function parseText(data,prefix){
       var out = {};
       data.split('\n').filter(function(a){
           return a&&a[0]!=='#';
@@ -130,24 +132,41 @@ var parseit = function(nm,defData) {
           var rslt = a.match(/\<(.+?)\>(.+)\</);
           return [rslt[1],rslt[2].trim()];
       }).forEach(function(a){
-         out['EPGS:'+a[0]]=a[1];
+         out[prefix+':'+a[0]]=a[1];
         });
         return out;
   }
-module.exports = function(){
-    fs.readFile('./epgs.txt','utf8',function(err,data){
-    var p = {defs:parseText(data)};
-    var outArray = [];
-    var outObj = {};
+var transformIt = function(prefix,cb){
+    request('http://svn.osgeo.org/metacrs/proj/trunk/proj/nad/'+prefix.toLowerCase(),function(err,resp,data){
+    var p = {defs:parseText(data,prefix.toUpperCase())};
+    cb(p);
+    });
+};
+    var outArray=[];
+    var counter = 0;
+var grabit=function(p){
     var parsed;
     for(var name in p.defs){
         parsed = parseit(name,p.defs[name]);
-        outObj[name]=parsed;
         outArray.push(parsed);
     }
-    fs.writeFile('./epsgAsObj.json',JSON.stringify(outObj),'utf8',function(){console.log('done with obj')});
-    fs.writeFile('./epsgAsObj-prettyprint.json',JSON.stringify(outObj,undefined,4),'utf8',function(){console.log('done with obj pp')});
-    fs.writeFile('./epsgAsArray.json',JSON.stringify(outArray),'utf8',function(){console.log('done with array')});
-    fs.writeFile('./epsgAsArray-prettyprint.json',JSON.stringify(outArray,undefined,4),'utf8',function(){console.log('done with array pp')}) 
+        counter++;
+        if(counter===2){
+            wrapup();
+        }
+};
+function wrapup(){
+    fs.writeFile('./defaultLocals.json',JSON.stringify(outArray,null,4),function(err){
+        if(err){
+            console.log(err);
+        }else{
+            console.log('all set with '+outArray.length+' records');
+        }
     });
 }
+var runit=function(){
+    transformIt('epsg',grabit);
+    transformIt('esri',grabit);
+}
+
+runit();
